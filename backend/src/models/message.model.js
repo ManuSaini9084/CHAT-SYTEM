@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema(
   {
@@ -18,8 +18,11 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
-    audio:{
-      type:String,
+    audio: {
+      type: String,
+    },
+    card: {
+      type: String, // Storing the Base64-encoded rate card
     },
   },
   { timestamps: true }

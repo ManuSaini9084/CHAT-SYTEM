@@ -42,7 +42,13 @@ export const useChatStore = create((set, get) => ({
       toast.error(error.response.data.message);
     }
   },
-
+  updateMessage: (messageId, updates) =>
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        msg._id === messageId ? { ...msg, ...updates } : msg
+      ),
+    })),
+  
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;

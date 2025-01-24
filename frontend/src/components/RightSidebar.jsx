@@ -1,10 +1,11 @@
 import { useState } from "react";
+import axios from "axios";
+import { Phone, Video, DollarSign, X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
-import { Users, Phone, Video, DollarSign, X } from "lucide-react";
+
 const RightSidebar = () => {
   const { selectedUser, sendMessage } = useChatStore();
-  const { onlineUsers } = useAuthStore();
   const [showRateCardModal, setShowRateCardModal] = useState(false);
   const [rates, setRates] = useState({ instagram: "", tiktok: "", youtube: "" });
 
@@ -12,38 +13,50 @@ const RightSidebar = () => {
     setRates((prev) => ({ ...prev, [platform]: value }));
   };
 
+  const initiateAudioCall = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/call/audio-call");
+      alert("Audio call initiated successfully!");
+      console.log("Call Response:", response.data);
+    } catch (error) {
+      console.error("Failed to initiate audio call:", error);
+      alert("Failed to initiate the call. Please try again.");
+    }
+  };
+  
+
   const handleSubmitRates = async () => {
     if (!rates.instagram && !rates.tiktok && !rates.youtube) {
       return; // Don't send an empty rate card
     }
-
-    const message = {
-      text: `Here's my rate card for your consideration.
-      \n\nProposed Rates:
-      \nInstagram: $${rates.instagram || 0}
-      \nTikTok: $${rates.tiktok || 0}\n
-      YouTube: $${rates.youtube || 0}`,
-      rateCard: true, // Custom field to differentiate rate card messages
+  
+    const cardContent = {
+      text: "Here's my rate card for your consideration.",
+      proposedRates: {
+        instagram: rates.instagram || 0,
+        tiktok: rates.tiktok || 0,
+        youtube: rates.youtube || 0,
+      },
     };
-
+  
+    const base64Card = btoa(JSON.stringify(cardContent)); // Convert to Base64
+  
     try {
-      await sendMessage(message); // Using `sendMessage` like in `MessageInput`
+      await sendMessage({ card: base64Card }); // Send the card data
       setShowRateCardModal(false); // Close modal
       setRates({ instagram: "", tiktok: "", youtube: "" }); // Reset form
     } catch (error) {
       console.error("Failed to send rate card:", error);
     }
   };
+  
 
   return (
-    <aside
-      className="h-full w-72 border-l border-base-300 flex flex-col p-5 bg-base-100"
-    >
-     <div>
+    <aside className="h-full w-72 border-l border-base-300 flex flex-col p-5 bg-base-100">
+      <div>
         <h2 className="font-bold mb-2">Project Details</h2>
-     </div>
+      </div>
 
-      {/* Upcoming Tasks */}
       <div className="mb-5">
         <h3 className="font-medium mb-2">Upcoming Tasks</h3>
         <ul className="text-sm space-y-1">
@@ -52,7 +65,6 @@ const RightSidebar = () => {
         </ul>
       </div>
 
-      {/* Files */}
       <div className="mb-5">
         <h4 className="font-medium mb-2">Files</h4>
         <ul className="text-sm space-y-1">
@@ -61,17 +73,19 @@ const RightSidebar = () => {
         </ul>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 mb-5">
-        <button className="btn btn-sm btn-primary flex items-center gap-2">
-          <Phone size={16} /> Audio Call
-        </button>
+      <button
+           className="btn btn-sm btn-primary flex items-center gap-2"
+           onClick={initiateAudioCall}
+           >
+           <Phone size={16} /> Audio Call
+       </button>
+
         <button className="btn btn-sm btn-primary flex items-center gap-2">
           <Video size={16} /> Video Call
         </button>
       </div>
 
-      {/* Share Rate Card */}
       <button
         className="btn btn-sm btn-secondary flex items-center gap-2"
         onClick={() => setShowRateCardModal(true)}
@@ -79,7 +93,6 @@ const RightSidebar = () => {
         <DollarSign size={16} /> Share Rate Card
       </button>
 
-      {/* Rate Card Modal */}
       {showRateCardModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-5 rounded-lg w-80">

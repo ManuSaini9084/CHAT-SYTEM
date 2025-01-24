@@ -12,6 +12,7 @@ import messageRoutes from "./routes/message.route.js";
 import { app, server } from "./lib/socket.js";
 import bodyParser from "body-parser";
 
+import callRoutes from "./routes/call.route.js";
 dotenv.config();
 app.use(bodyParser.json({ limit: "5mb" }));
 app.use(bodyParser.urlencoded({ limit: "5mb", extended: true }));
@@ -28,6 +29,7 @@ app.use(
   })
 );
 
+app.use("/api/call", callRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 

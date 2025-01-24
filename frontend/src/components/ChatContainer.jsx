@@ -68,7 +68,7 @@ console.log(photoMessages.length);
   const fetchTranscription = async (base64Audio) => {
     try {
       const response = await fetch(
-        "https://speech.googleapis.com/v1p1beta1/speech:recognize?key=AIzaSyAXWlfqbES-pjrP57vcBsjVPkAz0XOmpcc",
+        `https://speech.googleapis.com/v1p1beta1/speech:recognize?key=${process.env.GOOGLE_API_KEY}`,
         {
           method: "POST",
           headers: {
